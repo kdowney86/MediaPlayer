@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -15,14 +16,14 @@ public class FilesActivity extends ActionBarActivity implements Observer {
 
 	protected MediaFilesObserver mfo;
 	protected ListView filesList;
-	protected File mediaDirectory;
+	protected String mediaDirectoryPath;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_files);
-		mediaDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-		mfo = new MediaFilesObserver(mediaDirectory.toString());
+		mediaDirectoryPath = "/sdcard/Download";
+		mfo = new MediaFilesObserver(mediaDirectoryPath);
 		mfo.registerObserver(this);
 		mfo.startWatching();
 		filesList = (ListView)findViewById(R.id.filesList);
@@ -56,12 +57,14 @@ public class FilesActivity extends ActionBarActivity implements Observer {
 	}
 	
 	public void refreshList(){
-		File[] files = mediaDirectory.listFiles();
+		File downloadDirectory = new File(mediaDirectoryPath);
+	    File [] files = downloadDirectory.listFiles();
 		ArrayList<String> fileNames = new ArrayList<String>();
 		for(File f : files){
-			fileNames.add(f.getAbsolutePath());
+			fileNames.add(f.getName());
 		}
 		ArrayAdapter<String> filesAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileNames);
+		filesList.setAdapter(filesAdapter);
 	}
 	
 }
