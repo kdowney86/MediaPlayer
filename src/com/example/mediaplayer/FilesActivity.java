@@ -1,33 +1,54 @@
 package com.example.mediaplayer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.support.v7.app.ActionBarActivity;
+import android.content.Context;
+import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class FilesActivity extends ActionBarActivity implements Observer {
 
 	protected MediaFilesObserver mfo;
 	protected ListView filesList;
 	protected String mediaDirectoryPath;
+	protected ArrayList<String> fileNames;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_files);
-		mediaDirectoryPath = "/sdcard/Download";
+		mediaDirectoryPath = "/sdcard/Download/";
 		mfo = new MediaFilesObserver(mediaDirectoryPath);
 		mfo.registerObserver(this);
 		mfo.startWatching();
 		filesList = (ListView)findViewById(R.id.filesList);
 		refreshList();
+		
+		filesList.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+					Intent myIntent = new Intent(FilesActivity.this, AudioPlayerActivity.class);
+					String audioPath = fileNames.get(position);
+					myIntent.putExtra("audioPath", audioPath);
+					startActivity(myIntent);
+			}
+		});
 	}
 
 	@Override
@@ -59,9 +80,9 @@ public class FilesActivity extends ActionBarActivity implements Observer {
 	public void refreshList(){
 		File downloadDirectory = new File(mediaDirectoryPath);
 	    File [] files = downloadDirectory.listFiles();
-		ArrayList<String> fileNames = new ArrayList<String>();
+	    fileNames= new ArrayList<String>();
 		for(File f : files){
-			fileNames.add(f.getName());
+			fileNames.add(f.getPath());
 		}
 		ArrayAdapter<String> filesAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileNames);
 		filesList.setAdapter(filesAdapter);
