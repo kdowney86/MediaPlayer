@@ -43,9 +43,14 @@ public class FilesActivity extends ActionBarActivity implements Observer {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-					Intent myIntent = new Intent(FilesActivity.this, AudioPlayerActivity.class);
-					String audioPath = fileNames.get(position);
-					myIntent.putExtra("audioPath", audioPath);
+					Intent myIntent = null;
+					String path = fileNames.get(position);
+					if (getFileExt(path).equals("mp3")) {
+						myIntent = new Intent(FilesActivity.this, AudioPlayerActivity.class);
+					} else {
+						myIntent = new Intent(FilesActivity.this, VideoPlayerActivity.class);
+					}
+					myIntent.putExtra("path", path);
 					startActivity(myIntent);
 			}
 		});
@@ -82,10 +87,18 @@ public class FilesActivity extends ActionBarActivity implements Observer {
 	    File [] files = downloadDirectory.listFiles();
 	    fileNames= new ArrayList<String>();
 		for(File f : files){
-			fileNames.add(f.getPath());
+			String extension = getFileExt(f.getPath());
+			if (extension.equals("mp3") || extension.equals("mp4")) {
+				fileNames.add(f.getPath());
+			}
 		}
 		ArrayAdapter<String> filesAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fileNames);
 		filesList.setAdapter(filesAdapter);
+	}
+	
+	public static String getFileExt(String FileName)
+	{       
+	     return FileName.substring((FileName.lastIndexOf(".") + 1), FileName.length());
 	}
 	
 }
